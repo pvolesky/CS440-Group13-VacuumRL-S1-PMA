@@ -1,0 +1,39 @@
+# PROVISIONAL defaults. Single source of truth for environment + hyperparameters.
+# Open items that may change these values: memory/open-questions.md (Q-001 .. Q-004).
+# When a value changes, update this file, docs/environment.md, and log a decision.
+
+[environment]
+# Row-major, row 0 at the top. Tokens are kept exactly as in the original problem statement.
+#   "start" = initial cell   "X" = obstacle   "0" = empty cell
+#   numeric token (other than "0") = reward for ENTERING that cell (provisional reading)
+layout = [
+  ["start", "0",  "0", "0"],
+  ["0",     "X",  "0", "0"],
+  ["0",     "0",  "0", "0"],
+  ["0",     "-1", "0", "10"],
+]
+actions = ["UP", "RIGHT", "DOWN", "LEFT"]
+obstacle_tokens = ["X"]       # impassable; moving into one leaves the robot in place
+terminal_tokens = ["10"]      # entering ends the episode
+blocked_move = "stay"         # stay | penalize (see bump_penalty)
+bump_penalty = 0.0
+step_cost = -0.04             # per-step living cost (AIMA 4x3 world uses -0.04)
+slip_probability = 0.0        # 0.0 = deterministic transitions
+max_episode_steps = 100       # truncation limit
+
+[agent]
+algorithm = "tabular_q_learning"
+gamma = 0.99
+alpha = 0.1
+epsilon_start = 1.0
+epsilon_end = 0.05
+epsilon_decay_episodes = 500
+optimistic_init = 0.0         # initial Q-value for all (s, a)
+
+[training]
+episodes = 2000
+seed = 0
+n_seeds = 5
+eval_every = 100
+eval_episodes = 20
+output_dir = "experiments/runs"

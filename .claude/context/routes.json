@@ -1,0 +1,29 @@
+{
+  "_comment": "Keyword routing for the UserPromptSubmit hook. Keywords match case-insensitively at a word start and allow suffixes (reward -> rewards). Highest score wins; ties break by lower priority number. See skill context-maintenance.",
+  "max_chars": 1500,
+  "max_routes": 3,
+  "routes": [
+    {"id": "environment", "file": "environment.md", "skill": "environment-spec", "priority": 1,
+     "keywords": ["environment", "env", "grid", "wall", "obstacle", "hazard", "terminal", "dock", "layout", "cell", "transition", "gymnasium", "observation", "action space", "reset", "slip"]},
+    {"id": "rewards", "file": "rewards.md", "skill": "environment-spec", "priority": 2,
+     "keywords": ["reward", "penalty", "discount", "gamma", "living cost", "step cost", "shaping", "bump"]},
+    {"id": "q-learning", "file": "q-learning.md", "skill": "q-learning-implementation", "priority": 1,
+     "keywords": ["q-learning", "q learning", "q-table", "q table", "q-value", "bellman", "off-policy", "td error", "temporal difference", "update rule", "learning rate", "alpha", "implement the agent", "agent"]},
+    {"id": "exploration", "file": "exploration.md", "skill": "q-learning-implementation", "priority": 2,
+     "keywords": ["epsilon", "exploration", "explore", "exploit", "greedy", "glie", "decay", "schedule"]},
+    {"id": "experiments", "file": "experiments.md", "skill": "rl-experiment-protocol", "priority": 3,
+     "keywords": ["train", "experiment", "seed", "hyperparameter", "baseline", "evaluate", "evaluation", "learning curve", "metric", "converge", "benchmark", "plot"]},
+    {"id": "debugging", "file": "debugging.md", "skill": "rl-debugging", "priority": 3,
+     "keywords": ["debug", "diverge", "not learning", "not converging", "stuck", "oscillat", "wrong", "unexpected", "doesn't work", "broken", "bug"]},
+    {"id": "testing", "file": "testing.md", "skill": null, "priority": 4,
+     "keywords": ["test", "pytest", "coverage", "fixture", "unit test"]},
+    {"id": "memory", "file": "memory.md", "skill": "memory-curation", "priority": 2,
+     "keywords": ["memory", "decision log", "decisions.md", "this decision", "that decision", "we decided", "decide", "record this", "log this", "open question", "lesson", "proposal", "remember", "project status", "adr"]},
+    {"id": "context-system", "file": "context-system.md", "skill": "context-maintenance", "priority": 2,
+     "keywords": ["hook", "skill", "claude.md", "context system", "context engineering", "router", "routes.json", "snippet", "budget"]},
+    {"id": "aima", "file": "aima.md", "skill": "aima-grounding", "priority": 3,
+     "keywords": ["aima", "russell", "norvig", "textbook", "chapter", "modern approach", "peas", "task environment", "cite", "citation", "value iteration", "policy iteration", "mdp", "markov decision"]},
+    {"id": "repo-layout", "file": "repo-layout.md", "skill": null, "priority": 5,
+     "keywords": ["repo", "repository", "directory", "folder", "readme", "structure", "scaffold", "where is", "where does"]}
+  ]
+}
