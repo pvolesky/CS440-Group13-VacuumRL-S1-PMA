@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+# Claude Code local-only files
+.claude/settings.local.json
+.claude/.cache/
+# Experiment outputs are reproducible from configs; commit configs, not results
+experiments/runs/
