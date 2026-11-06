@@ -14,4 +14,3 @@ experiments/*.db
 # Local secrets and environment variables
 .env
 *.local.json
-.agents/mcp_config.json

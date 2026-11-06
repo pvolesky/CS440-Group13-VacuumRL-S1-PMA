@@ -163,10 +163,10 @@ def check_settings(root: Path) -> list[str]:
         cfg = json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
         return [f".gemini/settings.json is not valid JSON: {exc}"]
-    entries = cfg.get("hooks", {}).get("UserPromptSubmit", [])
+    entries = cfg.get("hooks", {}).get("BeforeAgent", []) or cfg.get("hooks", {}).get("UserPromptSubmit", [])
     commands = [h.get("command", "") for e in entries for h in e.get("hooks", [])]
     if not any("context_router.py" in c for c in commands):
-        return ["settings.json does not register context_router.py under hooks.UserPromptSubmit"]
+        return ["settings.json does not register context_router.py under hooks.BeforeAgent or hooks.UserPromptSubmit"]
     if not (root / ".gemini" / "hooks" / "context_router.py").is_file():
         return [".gemini/hooks/context_router.py is missing"]
     return []
