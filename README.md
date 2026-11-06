@@ -13,7 +13,7 @@ The environment (from the problem statement):
 
 The transition function T and reward function R are not available to the agent, so it must learn from interaction. That is exactly the setting Q-learning was designed for (Russell and Norvig, *AIMA* 4th ed., Ch. 22).
 
-> **Current phase: scaffolding.** The context system, memory, hooks, MCP servers, tests, and placeholders are in place. Q-learning is held until requested. See `docs/roadmap.md`.
+> **Current phase: Phase 3 complete (experiments). Phase 4 is indefinitely paused (do not implement until explicitly requested).** All core RL components (environment, tabular Q-learning, greedy evaluation, multi-seed experiments, and test suites) are implemented and verified. See `docs/roadmap.md`.
 
 ## Quick start
 
@@ -21,11 +21,49 @@ The transition function T and reward function R are not available to the agent, 
 python3 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"      # installs numpy, pytest, and MCP servers
 make validate                # context integrity: sizes, skills, routes, memory, settings
-make test                    # pytest; contract tests for unbuilt code are skipped
+make test                    # runs full test suite (all 41 contract and invariant tests)
 make hook-demo PROMPT="how should I set epsilon"   # preview what the hook injects
 ```
 
 Requirements: Python 3.11+, Linux, Node.js (`npx` for GitHub MCP).
+
+## Running Q-Learning Manually
+
+### 1. Single Training Run
+To run tabular Q-learning with the default hyperparameters defined in `configs/default.toml`:
+
+```bash
+python3 -m vacuum_rl.train
+```
+
+**Expected output:**
+```text
+Starting Q-learning training with seed 0...
+Training complete! Final evaluation: mean_return=9.94, success_rate=100.0%
+```
+
+### 2. Multi-Seed Experiments & Sweeps
+To run the full Phase 3 experiment suite across 5 independent seeds (seeds 0 through 4) for both the baseline and hyperparameter sweeps:
+
+```bash
+python3 scripts/run_experiments.py
+```
+
+This runs:
+- **`baseline`**: 5 seeds with default parameters ($\alpha = 0.1, \gamma = 0.9, \epsilon_{\text{decay}} = 0.99$)
+- **`sweep_epsilon_decay_0.95` & `0.995`**: Exploration decay rate comparisons
+- **`sweep_alpha_0.05` & `0.2`**: Learning rate sensitivity comparisons
+
+**Artifacts Generated:**
+Outputs are written to `experiments/runs/<date>_<name>_<sha>/` (git-ignored):
+- `config.toml`: Frozen configuration snapshot
+- `metrics.csv`: Episodic training curves (return, length, $\epsilon$, termination, truncation)
+- `eval.csv`: Greedy evaluation checkpoints ($\epsilon = 0$) and value-iteration oracle agreement
+- `q_table_seed<N>.npy`: Serialized Q-tables for each seed
+- `summary.json`: Mean and standard deviation aggregations across seeds
+- `experiments/runs.db`: Relational SQLite database recording all runs and checkpoints (queryable via SQLite MCP)
+
+Detailed analysis and conclusions are documented in [`experiments/findings.md`](experiments/findings.md).
 
 ## How the context system works
 
@@ -88,22 +126,24 @@ vacuum-rl/
 │       ├── aima-grounding/               AIMA 4e chapter map, notation, citation convention
 │       ├── memory-curation/              Propose-then-merge memory workflow
 │       └── context-maintenance/          Maintain the context system itself
-├── src/vacuum_rl/                Stubs for future work
+├── src/vacuum_rl/                Core reinforcement learning package
 │   ├── config.py                 Loads configs/default.toml (implemented)
-│   ├── env.py                    VacuumGridEnv: owns T and R (stub)
-│   ├── agent.py                  QLearningAgent: model-free (stub)
-│   ├── train.py                  Training loop (stub)
-│   └── evaluate.py               Greedy evaluation (stub)
+│   ├── env.py                    VacuumGridEnv: owns T and R; test-only oracle (implemented)
+│   ├── agent.py                  QLearningAgent: model-free tabular Q-learning (implemented)
+│   ├── train.py                  Training loop and CLI runner (implemented)
+│   └── evaluate.py               Greedy evaluation (implemented)
 ├── tests/
 │   ├── test_hook.py              Hook routing, budget, fail-open behavior (active)
 │   ├── test_context_integrity.py Scaffolding stays valid (active)
 │   ├── test_model_free_invariant.py  agent.py cannot touch the environment's internals (active)
 │   ├── test_config.py            Config sanity (active)
-│   ├── test_env_contract.py      Environment contract (skipped placeholders)
-│   └── test_agent_contract.py    Agent contract (skipped placeholders)
+│   ├── test_env_contract.py      Environment contract and dynamics (active)
+│   └── test_agent_contract.py    Agent contract, updates, and oracle agreement (active)
 ├── scripts/
-│   └── validate_context.py       Size budgets, frontmatter, routes, memory, settings checks
+│   ├── validate_context.py       Size budgets, frontmatter, routes, memory, settings checks
+│   └── run_experiments.py        Phase 3 multi-seed experiment and sweep runner
 └── experiments/                  Run outputs go in experiments/runs/ and runs.db (git-ignored)
+    └── findings.md               Empirical analysis and sweep findings report
 ```
 
 ## Environment semantics & hyperparameters (D-009)
