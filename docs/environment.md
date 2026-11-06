@@ -1,6 +1,6 @@
-# Environment specification (PROVISIONAL)
+# Environment specification
 
-Status: provisional (decision D-007). Open items: Q-001 to Q-004 in `memory/open-questions.md`.
+Status: accepted (decision D-009, superseding D-007).
 Numeric values live in `configs/default.toml`; this document explains meaning and does not restate them.
 
 ## Problem statement as given
@@ -14,7 +14,7 @@ Numeric values live in `configs/default.toml`; this document explains meaning an
 
 The transition function T and reward function R are not available to the agent, so the agent learns by interaction (Q-learning).
 
-## Cell semantics (provisional)
+## Cell semantics
 
 Coordinates are `(row, col)` with row 0 at the top.
 
@@ -22,22 +22,23 @@ Coordinates are `(row, col)` with row 0 at the top.
 |---|---|---|
 | `start` | (0, 0) | Initial position of the robot |
 | `X` | (1, 1) | Impassable obstacle (furniture or wall) |
-| `-1` | (3, 1) | Hazard: entering it yields -1; episode continues |
+| `-1` | (3, 1) | Hazard (hole/fire): entering it yields -1; episode terminates |
 | `10` | (3, 3) | Charging dock: entering it yields +10; episode terminates |
 | `0` | elsewhere | Empty floor |
 
-## Dynamics and rewards (provisional)
+## Dynamics and rewards
 
 - **Actions:** UP, RIGHT, DOWN, LEFT (order matches `Action` in `src/vacuum_rl/env.py`).
 - **Blocked moves:** moving off the grid or into an obstacle leaves the robot in place (`blocked_move = "stay"`).
-- **Reward for a step:** `step_cost` plus the numeric value of the entered cell token (0 for `0` and `start`). A blocked move still pays `step_cost` (plus `bump_penalty` if configured).
-- **Termination:** entering a cell listed in `terminal_tokens`.
-- **Truncation:** `max_episode_steps` reached without termination.
-- **Stochasticity:** with probability `slip_probability` the intended action is replaced by one of the two perpendicular actions, split evenly (AIMA's 4x3 world uses 0.8 intended, 0.1 each side). Default is 0, i.e. deterministic.
+- **Reward for a step:** `step_cost` plus the numeric value of the entered cell token (0 for `0` and `start`). A blocked move still pays `step_cost`.
+- **Termination:** entering a cell listed in `terminal_tokens` (`10` or `-1`).
+- **Truncation:** `max_episode_steps` (100) reached without termination.
+- **Stochasticity:** with probability `slip_probability` the intended action is replaced by one of the two perpendicular actions, split evenly. Default is 0.0 (deterministic).
 
-## Sanity reference (valid only while D-007 holds)
+## Sanity reference (D-009)
 
-Shortest path from start to dock is 6 moves, for example RIGHT, RIGHT, RIGHT, DOWN, DOWN, DOWN. It avoids both the obstacle and the hazard. With the default step cost the undiscounted return of that path is 6 x step_cost + 10. Use this for the "scripted optimal path" check in skill `rl-debugging`, and update it if the semantics change.
+- **Shortest path:** 6 moves (for example, RIGHT, RIGHT, RIGHT, DOWN, DOWN, DOWN). It avoids both the obstacle and the hazard. With `step_cost = -0.01` the undiscounted return of that path is 6 x (-0.01) + 10 = +9.94. Use this for the "scripted optimal path" check in skill `rl-debugging`.
+- **Success criterion:** 95% success rate over 20 evaluation episodes with $\epsilon$ at floor (0.01).
 
 ## Task environment (AIMA 4e Ch. 2, PEAS)
 

@@ -12,8 +12,8 @@ import re
 import sys
 from pathlib import Path
 
-gemini_MD_MAX_LINES = 60
-gemini_MD_MAX_CHARS = 4000
+GEMINI_MD_MAX_LINES = 60
+GEMINI_MD_MAX_CHARS = 4000
 SNIPPET_MAX_CHARS = 450
 STATUS_MAX_CHARS = 200
 SKILL_BODY_MAX_LINES = 500

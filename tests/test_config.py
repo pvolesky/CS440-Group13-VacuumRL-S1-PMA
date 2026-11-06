@@ -40,4 +40,5 @@ def test_hyperparameters_are_in_valid_ranges():
     agent = load_config()["agent"]
     assert 0.0 < agent["alpha"] <= 1.0
     assert 0.0 <= agent["gamma"] <= 1.0
-    assert 0.0 <= agent["epsilon_end"] <= agent["epsilon_start"] <= 1.0
+    assert 0.0 <= agent["epsilon_min"] <= agent["epsilon_start"] <= 1.0
+    assert 0.0 < agent["epsilon_decay"] <= 1.0
