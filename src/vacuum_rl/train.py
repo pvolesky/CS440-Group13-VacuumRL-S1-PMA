@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from typing import Any
+import numpy as np
 
 from vacuum_rl.agent import QLearningAgent
 from vacuum_rl.config import load_config
@@ -57,10 +58,84 @@ def run_training(config: dict[str, Any], seed: int) -> dict[str, Any]:
 
     return {
         "agent": agent,
+        "env": env,
         "episode_returns": episode_returns,
         "episode_lengths": episode_lengths,
         "eval_history": eval_history,
     }
+
+
+def format_q_table(agent: QLearningAgent, env: VacuumGridEnv) -> str:
+    """Format the Q-table and greedy policy into human-readable tables."""
+    lines = []
+    lines.append("=" * 82)
+    lines.append("LEARNED Q-TABLE (Expected Future Discounted Rewards for Each State-Action Pair)")
+    lines.append("=" * 82)
+    lines.append(
+        f"{'State (r, c)':<15} | {'UP (0)':>9} | {'RIGHT (1)':>9} | {'DOWN (2)':>9} | "
+        f"{'LEFT (3)':>9} | {'Best Action':<11} | {'max Q(s)':>8}"
+    )
+    lines.append("-" * 82)
+
+    action_names = ["UP", "RIGHT", "DOWN", "LEFT"]
+    for s_idx in range(env.n_states):
+        r, c = env.decode_state(s_idx)
+        tok = env._layout[r][c]
+        label = f"({r}, {c})"
+        if tok == "X":
+            label += " [Obstacle]"
+        elif tok == "10":
+            label += " [Dock]"
+        elif tok == "-1":
+            label += " [Hazard]"
+        elif tok == "start":
+            label += " [Start]"
+
+        q = agent.q_table[s_idx]
+        best_act = action_names[int(np.argmax(q))]
+        max_q = float(np.max(q))
+
+        if tok == "X":
+            lines.append(
+                f"{label:<15} | {'--':>9} | {'--':>9} | {'--':>9} | {'--':>9} | {'--':<11} | {'--':>8}"
+            )
+        elif tok in env.terminal_tokens:
+            lines.append(
+                f"{label:<15} | {q[0]:>9.2f} | {q[1]:>9.2f} | {q[2]:>9.2f} | {q[3]:>9.2f} | "
+                f"{'Terminal':<11} | {max_q:>8.2f}"
+            )
+        else:
+            lines.append(
+                f"{label:<15} | {q[0]:>9.2f} | {q[1]:>9.2f} | {q[2]:>9.2f} | {q[3]:>9.2f} | "
+                f"{best_act:<11} | {max_q:>8.2f}"
+            )
+
+    lines.append("=" * 82)
+    lines.append("\nLEARNED POLICY & MAXIMUM STATE VALUES V(s) = max_a Q(s, a):")
+    lines.append("  Policy Grid (^ > v <)                     Value Grid V(s)")
+    arrows = {0: "^", 1: ">", 2: "v", 3: "<"}
+    for r in range(env._n_rows):
+        pol_cells = []
+        val_cells = []
+        for c in range(env._n_cols):
+            s_idx = env.encode_state((r, c))
+            tok = env._layout[r][c]
+            if tok == "X":
+                pol_cells.append("  X  ")
+                val_cells.append("   --   ")
+            elif tok == "10":
+                pol_cells.append(" Dock")
+                val_cells.append(f"{float(np.max(agent.q_table[s_idx])):8.2f}")
+            elif tok == "-1":
+                pol_cells.append(" Haz ")
+                val_cells.append(f"{float(np.max(agent.q_table[s_idx])):8.2f}")
+            else:
+                best_act = int(np.argmax(agent.q_table[s_idx]))
+                pol_cells.append(f"  {arrows[best_act]}  ")
+                val_cells.append(f"{float(np.max(agent.q_table[s_idx])):8.2f}")
+        lines.append(f"  {' '.join(pol_cells)}          {' '.join(val_cells)}")
+    lines.append("=" * 82)
+    return "\n".join(lines)
 
 
 def main() -> int:
@@ -68,12 +143,17 @@ def main() -> int:
     seed = int(config.get("training", {}).get("seed", 0))
     print(f"Starting Q-learning training with seed {seed}...")
     results = run_training(config, seed=seed)
+    agent = results["agent"]
+    env = results.get("env") or VacuumGridEnv(config, seed=seed)
+
     final_eval = results["eval_history"][-1] if results["eval_history"] else {}
     print(
-        f"Training complete! Final evaluation: "
+        f"\nTraining complete! Final evaluation: "
         f"mean_return={final_eval.get('mean_return', 0.0):.2f}, "
-        f"success_rate={final_eval.get('success_rate', 0.0):.1%}"
+        f"success_rate={final_eval.get('success_rate', 0.0):.1%}\n"
     )
+
+    print(format_q_table(agent, env))
     return 0
 
 
