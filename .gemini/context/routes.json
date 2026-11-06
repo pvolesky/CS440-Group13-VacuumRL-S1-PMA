@@ -20,7 +20,7 @@
     {"id": "memory", "file": "memory.md", "skill": "memory-curation", "priority": 2,
      "keywords": ["memory", "decision log", "decisions.md", "this decision", "that decision", "we decided", "decide", "record this", "log this", "open question", "lesson", "proposal", "remember", "project status", "adr"]},
     {"id": "context-system", "file": "context-system.md", "skill": "context-maintenance", "priority": 2,
-     "keywords": ["hook", "skill", "claude.md", "context system", "context engineering", "router", "routes.json", "snippet", "budget"]},
+     "keywords": ["hook", "skill", "gemini.md", "context system", "context engineering", "router", "routes.json", "snippet", "budget"]},
     {"id": "aima", "file": "aima.md", "skill": "aima-grounding", "priority": 3,
      "keywords": ["aima", "russell", "norvig", "textbook", "chapter", "modern approach", "peas", "task environment", "cite", "citation", "value iteration", "policy iteration", "mdp", "markov decision"]},
     {"id": "repo-layout", "file": "repo-layout.md", "skill": null, "priority": 5,

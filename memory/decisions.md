@@ -5,7 +5,7 @@ Status values: `accepted` | `provisional` (works for now, expected to be refined
 
 ## D-001: Persistent memory architecture
 - **Status:** accepted
-- **Decision:** Combine `CLAUDE.md` (small, always-on), a `UserPromptSubmit` hook (short, task-relevant snippets), Claude Code Skills (long procedures), and a `memory/` directory (decisions, open questions, lessons).
+- **Decision:** Combine `GEMINI.md` (small, always-on), a `UserPromptSubmit` hook (short, task-relevant snippets), Gemini Code Skills (long procedures), and a `memory/` directory (decisions, open questions, lessons).
 - **Why:** Always-on context must stay small; relevance-gated and on-demand layers keep the rest available without paying for it every turn. See `docs/context-engineering.md`.
 
 ## D-002: Tooling

@@ -26,4 +26,4 @@ To resolve: draft a proposal that closes the question, logs a decision, and upda
 ## Q-005: Hook refinements
 - **Question:** Should the hook deduplicate snippets already injected earlier in the session? Is lexical keyword routing good enough?
 - **Provisional default:** Stateless keyword routing; every matching prompt re-injects (about 1.5 KB at most).
-- **Touches:** `.claude/hooks/context_router.py`, `docs/context-engineering.md`.
+- **Touches:** `.gemini/hooks/context_router.py`, `docs/context-engineering.md`.

@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/context_router.py",
+            "command": "python3 \"$GEMINI_PROJECT_DIR\"/.gemini/hooks/context_router.py",
             "timeout": 5
           }
         ]

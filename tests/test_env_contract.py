@@ -1,6 +1,6 @@
 """Environment contract tests. PLACEHOLDERS: un-skip as Phase 1 (env.py) is implemented.
 
-Contract source: .claude/skills/environment-spec/SKILL.md and docs/environment.md.
+Contract source: .gemini/skills/environment-spec/SKILL.md and docs/environment.md.
 Each test body states what to assert; replace `raise NotImplementedError` with real checks.
 """
 import pytest
