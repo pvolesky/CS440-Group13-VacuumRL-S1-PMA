@@ -10,7 +10,7 @@ from pathlib import Path
 from types import ModuleType
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-HOOK_PATH = REPO_ROOT / ".claude" / "hooks" / "context_router.py"
+HOOK_PATH = REPO_ROOT / ".gemini" / "hooks" / "context_router.py"
 
 
 def load_script(name: str, relative_path: str) -> ModuleType:
@@ -24,9 +24,9 @@ def load_script(name: str, relative_path: str) -> ModuleType:
 
 
 def run_hook(stdin_text: str, env_extra: dict[str, str] | None = None, project_dir: Path | None = None):
-    """Run the hook exactly as Claude Code would: a subprocess with JSON on stdin."""
+    """Run the hook exactly as Gemini Code would: a subprocess with JSON on stdin."""
     env = {k: v for k, v in os.environ.items() if not k.startswith("VACUUM_RL_")}
-    env["CLAUDE_PROJECT_DIR"] = str(project_dir or REPO_ROOT)
+    env["GEMINI_PROJECT_DIR"] = str(project_dir or REPO_ROOT)
     env.update(env_extra or {})
     return subprocess.run(
         [sys.executable, str(HOOK_PATH)],

@@ -1,6 +1,6 @@
 """Q-learning agent contract tests. PLACEHOLDERS: un-skip as Phase 2 is implemented.
 
-Procedure and hand-computed numbers: .claude/skills/q-learning-implementation/SKILL.md
+Procedure and hand-computed numbers: .gemini/skills/q-learning-implementation/SKILL.md
 """
 import pytest
 

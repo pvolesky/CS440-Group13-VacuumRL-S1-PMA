@@ -12,4 +12,4 @@ validate:
 > $(PY) scripts/validate_context.py
 
 hook-demo:
-> $(PY) .claude/hooks/context_router.py --explain "$(PROMPT)"
+> $(PY) .gemini/hooks/context_router.py --explain "$(PROMPT)"
