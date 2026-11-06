@@ -1,7 +1,7 @@
 # vacuum-rl
 
 Tabular Q-learning for a vacuum robot on a small grid world. The agent is model-free: it never gets T or R.
-**Current phase: Phase 2 complete (tabular Q-learning).** Status: `memory/project-status.md`.
+**Current phase: Phase 3 complete (experiments).** Status: `memory/project-status.md`.
 
 ## Hard rules
 1. **Model-free boundary.** The environment owns T and R. The agent sees only `reset()` and `step(action)`. Nothing in `src/vacuum_rl/agent.py` may import or read environment internals (enforced by `tests/test_model_free_invariant.py`).
