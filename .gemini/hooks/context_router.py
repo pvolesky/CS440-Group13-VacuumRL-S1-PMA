@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""UserPromptSubmit hook: inject short, task-relevant context for vacuum-rl.
+"""BeforeAgent hook: inject short, task-relevant context for vacuum-rl.
 
 Contract (Gemini Code hooks):
   stdin   JSON event; we read the "prompt" field.
