@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """BeforeAgent hook: inject short, task-relevant context for vacuum-rl.
 
-Contract (Gemini Code hooks):
+Contract (Gemini CLI hooks):
   stdin   JSON event; we read the "prompt" field.
-  stdout  JSON {"hookSpecificOutput": {"hookEventName": "UserPromptSubmit",
-                                       "additionalContext": "<text>"}}
+  stdout  JSON {"hookSpecificOutput": {"additionalContext": "<text>"}}
   exit    always 0 (fail-open): a broken hook must never block the user's prompt.
 
 What it injects, in order, under a hard character budget (routes.json: max_chars):
