@@ -1,12 +1,25 @@
 {
   "hooks": {
-    "UserPromptSubmit": [
+    "AfterAgent": [
+      {
+        "hooks": [
+          {
+            "name": "pytest-after-code-task",
+            "type": "command",
+            "command": "python3 \"$GEMINI_PROJECT_DIR/.gemini/hooks/run_tests_after_agent.py\"",
+            "timeout": 120000,
+            "description": "Run pytest after code-focused tasks and return failures to Gemini once"
+          }
+        ]
+      }
+    ],
+    "BeforeAgent": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$GEMINI_PROJECT_DIR\"/.gemini/hooks/context_router.py",
-            "timeout": 5
+            "command": "python3 \"$GEMINI_PROJECT_DIR/.gemini/hooks/context_router.py\"",
+            "timeout": 5000
           }
         ]
       }
