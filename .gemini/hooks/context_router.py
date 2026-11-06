@@ -148,7 +148,6 @@ def emit(context: str) -> None:
         return
     payload = {
         "hookSpecificOutput": {
-            "hookEventName": "UserPromptSubmit",
             "additionalContext": context,
         }
     }
