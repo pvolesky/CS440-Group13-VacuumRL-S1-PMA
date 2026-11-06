@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "AfterAgent": [
+      {
+        "hooks": [
+          {
+            "name": "pytest-after-code-task",
+            "type": "command",
+            "command": "python3 \"$GEMINI_PROJECT_DIR/.gemini/hooks/run_tests_after_agent.py\"",
+            "timeout": 120000,
+            "description": "Run pytest after code-focused tasks and return failures to Gemini once"
+          }
+        ]
+      }
+    ]
+  }
+}
