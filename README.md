@@ -13,7 +13,7 @@ The environment (from the problem statement):
 
 The transition function T and reward function R are not available to the agent, so it must learn from interaction. That is exactly the setting Q-learning was designed for (Russell and Norvig, *AIMA* 4th ed., Ch. 22).
 
-> **Current phase: scaffolding.** The context system, memory, hooks, MCP servers, tests, and placeholders are in place. Q-learning is held until requested. See `docs/roadmap.md`.
+> **Current phase: Phase 3 complete (experiments). Phase 4 is indefinitely paused (do not implement until explicitly requested).** All core RL components (environment, tabular Q-learning, greedy evaluation, multi-seed experiments, and test suites) are implemented and verified. See `docs/roadmap.md`.
 
 ## Quick start
 
@@ -21,11 +21,81 @@ The transition function T and reward function R are not available to the agent, 
 python3 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"      # installs numpy, pytest, and MCP servers
 make validate                # context integrity: sizes, skills, routes, memory, settings
-make test                    # pytest; contract tests for unbuilt code are skipped
+make test                    # runs full test suite (all 41 contract and invariant tests)
 make hook-demo PROMPT="how should I set epsilon"   # preview what the hook injects
 ```
 
 Requirements: Python 3.11+, Linux, Node.js (`npx` for GitHub MCP).
+
+## Running Q-Learning Manually
+
+### 1. Single Training Run
+To run tabular Q-learning with the default hyperparameters defined in `configs/default.toml`:
+
+```bash
+python3 -m vacuum_rl.train
+```
+
+**Expected output:**
+```text
+Starting Q-learning training with seed 0...
+
+Training complete! Final evaluation: mean_return=9.94, success_rate=100.0%
+
+==================================================================================
+LEARNED Q-TABLE (Expected Future Discounted Rewards for Each State-Action Pair)
+==================================================================================
+State (r, c)    |    UP (0) | RIGHT (1) |  DOWN (2) |  LEFT (3) | Best Action | max Q(s)
+----------------------------------------------------------------------------------
+(0, 0) [Start]  |      4.25 |      5.86 |      1.30 |      4.97 | RIGHT       |     5.86
+(0, 1)          |      4.64 |      6.52 |      4.70 |      4.11 | RIGHT       |     6.52
+(0, 2)          |      5.82 |      5.85 |      7.26 |      4.61 | DOWN        |     7.26
+(0, 3)          |      2.40 |      2.43 |      8.00 |      3.26 | DOWN        |     8.00
+(1, 0)          |      0.92 |      0.07 |      2.64 |      0.12 | DOWN        |     2.64
+(1, 1) [Obstacle] |        -- |        -- |        -- |        -- | --          |       --
+(1, 2)          |      5.95 |      8.07 |      7.72 |      6.55 | RIGHT       |     8.07
+(1, 3)          |      6.49 |      7.59 |      8.98 |      6.93 | DOWN        |     8.98
+(2, 0)          |      0.13 |      4.72 |      0.08 |      0.53 | RIGHT       |     4.72
+(2, 1)          |      0.81 |      7.16 |     -0.69 |      0.32 | RIGHT       |     7.16
+(2, 2)          |      3.54 |      8.98 |      3.43 |      1.67 | RIGHT       |     8.98
+(2, 3)          |      7.21 |      8.47 |      9.99 |      7.45 | DOWN        |     9.99
+(3, 0)          |      0.51 |     -0.58 |      0.01 |      0.04 | UP          |     0.51
+(3, 1) [Hazard] |      0.00 |      0.00 |      0.00 |      0.00 | Terminal    |     0.00
+(3, 2)          |      1.60 |      6.86 |      0.47 |     -0.27 | RIGHT       |     6.86
+(3, 3) [Dock]   |      0.00 |      0.00 |      0.00 |      0.00 | Terminal    |     0.00
+==================================================================================
+
+LEARNED POLICY & MAXIMUM STATE VALUES V(s) = max_a Q(s, a):
+  Policy Grid (^ > v <)                     Value Grid V(s)
+    >     >     v     v                5.86     6.52     7.26     8.00
+    v     X     >     v                2.64    --        8.07     8.98
+    >     >     >     v                4.72     7.16     8.98     9.99
+    ^    Haz    >    Dock              0.51     0.00     6.86     0.00
+==================================================================================
+```
+
+### 2. Multi-Seed Experiments & Sweeps
+To run the full Phase 3 experiment suite across 5 independent seeds (seeds 0 through 4) for both the baseline and hyperparameter sweeps:
+
+```bash
+python3 scripts/run_experiments.py
+```
+
+This runs:
+- **`baseline`**: 5 seeds with default parameters ($\alpha = 0.1, \gamma = 0.9, \epsilon_{\text{decay}} = 0.99$)
+- **`sweep_epsilon_decay_0.95` & `0.995`**: Exploration decay rate comparisons
+- **`sweep_alpha_0.05` & `0.2`**: Learning rate sensitivity comparisons
+
+**Artifacts Generated:**
+Outputs are written to `experiments/runs/<date>_<name>_<sha>/` (git-ignored):
+- `config.toml`: Frozen configuration snapshot
+- `metrics.csv`: Episodic training curves (return, length, $\epsilon$, termination, truncation)
+- `eval.csv`: Greedy evaluation checkpoints ($\epsilon = 0$) and value-iteration oracle agreement
+- `q_table_seed<N>.npy`: Serialized Q-tables for each seed
+- `summary.json`: Mean and standard deviation aggregations across seeds
+- `experiments/runs.db`: Relational SQLite database recording all runs and checkpoints (queryable via SQLite MCP)
+
+Detailed analysis and conclusions are documented in [`experiments/findings.md`](experiments/findings.md).
 
 ## How the context system works
 
@@ -88,22 +158,24 @@ vacuum-rl/
 │       ├── aima-grounding/               AIMA 4e chapter map, notation, citation convention
 │       ├── memory-curation/              Propose-then-merge memory workflow
 │       └── context-maintenance/          Maintain the context system itself
-├── src/vacuum_rl/                Stubs for future work
+├── src/vacuum_rl/                Core reinforcement learning package
 │   ├── config.py                 Loads configs/default.toml (implemented)
-│   ├── env.py                    VacuumGridEnv: owns T and R (stub)
-│   ├── agent.py                  QLearningAgent: model-free (stub)
-│   ├── train.py                  Training loop (stub)
-│   └── evaluate.py               Greedy evaluation (stub)
+│   ├── env.py                    VacuumGridEnv: owns T and R; test-only oracle (implemented)
+│   ├── agent.py                  QLearningAgent: model-free tabular Q-learning (implemented)
+│   ├── train.py                  Training loop and CLI runner (implemented)
+│   └── evaluate.py               Greedy evaluation (implemented)
 ├── tests/
 │   ├── test_hook.py              Hook routing, budget, fail-open behavior (active)
 │   ├── test_context_integrity.py Scaffolding stays valid (active)
 │   ├── test_model_free_invariant.py  agent.py cannot touch the environment's internals (active)
 │   ├── test_config.py            Config sanity (active)
-│   ├── test_env_contract.py      Environment contract (skipped placeholders)
-│   └── test_agent_contract.py    Agent contract (skipped placeholders)
+│   ├── test_env_contract.py      Environment contract and dynamics (active)
+│   └── test_agent_contract.py    Agent contract, updates, and oracle agreement (active)
 ├── scripts/
-│   └── validate_context.py       Size budgets, frontmatter, routes, memory, settings checks
+│   ├── validate_context.py       Size budgets, frontmatter, routes, memory, settings checks
+│   └── run_experiments.py        Phase 3 multi-seed experiment and sweep runner
 └── experiments/                  Run outputs go in experiments/runs/ and runs.db (git-ignored)
+    └── findings.md               Empirical analysis and sweep findings report
 ```
 
 ## Environment semantics & hyperparameters (D-009)

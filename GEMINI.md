@@ -1,7 +1,7 @@
 # vacuum-rl
 
 Tabular Q-learning for a vacuum robot on a small grid world. The agent is model-free: it never gets T or R.
-**Current phase: context scaffolding.** Do not implement Q-learning until the user asks. Status: `memory/project-status.md`.
+**Current phase: Phase 3 complete (experiments). Phase 4 is indefinitely paused (do not implement until explicitly requested).** Status: `memory/project-status.md`.
 
 ## Hard rules
 1. **Model-free boundary.** The environment owns T and R. The agent sees only `reset()` and `step(action)`. Nothing in `src/vacuum_rl/agent.py` may import or read environment internals (enforced by `tests/test_model_free_invariant.py`).
@@ -16,7 +16,7 @@ Tabular Q-learning for a vacuum robot on a small grid world. The agent is model-
 - `make hook-demo PROMPT="..."` shows what the hook would inject for a prompt
 
 ## Where things live
-- `src/vacuum_rl/` environment, agent, training and evaluation code (stubs for now)
+- `src/vacuum_rl/` environment, agent, training and evaluation code
 - `configs/default.toml` single source of truth for environment and hyperparameters
 - `docs/` human-readable specs and design rationale
 - `memory/` decisions, open questions, lessons, pending proposals, one-line status
@@ -31,3 +31,4 @@ Tabular Q-learning for a vacuum robot on a small grid world. The agent is model-
 - Python 3.11+, type hints, numpy. Hooks and scripts are stdlib-only.
 - Every stochastic component takes an explicit seed.
 - Cite AIMA 4th ed. by chapter (Ch. 2, 17, 22); see `aima-grounding`.
+- For shell commands that require user approval, provide a concise justification in chat beforehand; keep tool summaries informative.
