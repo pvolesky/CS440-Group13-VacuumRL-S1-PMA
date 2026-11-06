@@ -33,7 +33,8 @@ Status values: `accepted` | `provisional` (works for now, expected to be refined
 - **Why:** Prevents silent drift of project facts and keeps the user in control of what persists.
 
 ## D-007: Provisional environment semantics
-- **Status:** provisional
+- **Status:** superseded
+- **Superseded-by:** D-009
 - **Decision:** Until the user specifies otherwise: row-major grid with `start` at (0,0); `X` is an impassable obstacle; the `-1` cell is a non-terminal penalty for entering it; the `10` cell is terminal; transitions are deterministic; blocked moves leave the robot in place; per-step cost -0.04; gamma 0.99; four movement actions; state is (row, col); episodes truncate at 100 steps. Values live in `configs/default.toml`.
 - **Why:** The user asked for general choices that can be refined later. Open items: Q-001 to Q-004 in `open-questions.md`.
 
@@ -41,3 +42,9 @@ Status values: `accepted` | `provisional` (works for now, expected to be refined
 - **Status:** accepted
 - **Decision:** Environment and hyperparameter values live only in `configs/default.toml`. Docs, snippets and skills point to it instead of restating numbers.
 - **Why:** Duplicated numbers go stale silently, and stale context is worse than missing context.
+
+## D-009: Environment semantics, learning parameters, and success criteria
+- **Status:** accepted
+- **Supersedes:** D-007
+- **Decision:** Row-major 4x4 grid with `start` at (0, 0); `X` impassable obstacle at (1, 1); `-1` terminal hazard (hole/fire) at (3, 1) yielding -1 reward and ending episode; `10` terminal dock at (3, 3) yielding +10 reward and ending episode; deterministic transitions (`slip_probability = 0.0`); blocked moves leave the robot in place; step cost -0.01; gamma 0.9; alpha 0.1; epsilon starts at 1.0, decays exponentially with factor 0.99 per episode to an epsilon floor of 0.01; four movement actions (UP, RIGHT, DOWN, LEFT); state is (row, col); max episode steps 100. Evaluation success criterion: 95% success rate over 20 evaluation episodes with epsilon at floor (0.01); optimal path is 6 steps with undiscounted return +9.94.
+- **Why:** Confirmed by user to finalize environment semantics, agent dynamics, hyperparameters, and evaluation criteria, resolving Q-001, Q-002, Q-003, and Q-004.
