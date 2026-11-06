@@ -31,3 +31,4 @@ Tabular Q-learning for a vacuum robot on a small grid world. The agent is model-
 - Python 3.11+, type hints, numpy. Hooks and scripts are stdlib-only.
 - Every stochastic component takes an explicit seed.
 - Cite AIMA 4th ed. by chapter (Ch. 2, 17, 22); see `aima-grounding`.
+- For shell commands that require user approval, provide a concise justification in chat beforehand; keep tool summaries informative.
