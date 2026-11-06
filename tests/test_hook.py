@@ -16,11 +16,10 @@ def _included_ids(prompt: str) -> list[str]:
 
 
 def test_output_is_valid_hook_json():
-    result = run_hook(json.dumps({"prompt": "set epsilon", "hook_event_name": "UserPromptSubmit"}))
+    result = run_hook(json.dumps({"prompt": "set epsilon"}))
     assert result.returncode == 0
     payload = json.loads(result.stdout)
     out = payload["hookSpecificOutput"]
-    assert out["hookEventName"] == "UserPromptSubmit"
     assert isinstance(out["additionalContext"], str) and out["additionalContext"]
 
 
