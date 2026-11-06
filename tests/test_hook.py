@@ -1,4 +1,4 @@
-"""Behavioral tests for the UserPromptSubmit hook (.claude/hooks/context_router.py)."""
+"""Behavioral tests for the UserPromptSubmit hook (.gemini/hooks/context_router.py)."""
 from __future__ import annotations
 
 import json
@@ -7,7 +7,7 @@ from pathlib import Path
 
 from _helpers import REPO_ROOT, hook_context, load_script, run_hook
 
-router = load_script("context_router", ".claude/hooks/context_router.py")
+router = load_script("context_router", ".gemini/hooks/context_router.py")
 
 
 def _included_ids(prompt: str) -> list[str]:

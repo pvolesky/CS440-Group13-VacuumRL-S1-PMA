@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
-"""UserPromptSubmit hook: inject short, task-relevant context for vacuum-rl.
+"""BeforeAgent hook: inject short, task-relevant context for vacuum-rl.
 
-Contract (Claude Code hooks):
+Contract (Gemini CLI hooks):
   stdin   JSON event; we read the "prompt" field.
-  stdout  JSON {"hookSpecificOutput": {"hookEventName": "UserPromptSubmit",
-                                       "additionalContext": "<text>"}}
+  stdout  JSON {"hookSpecificOutput": {"additionalContext": "<text>"}}
   exit    always 0 (fail-open): a broken hook must never block the user's prompt.
 
 What it injects, in order, under a hard character budget (routes.json: max_chars):
   1. a header and the one-line project status (memory/project-status.md)
-  2. up to max_routes snippets from .claude/context/, chosen by keyword match
+  2. up to max_routes snippets from .gemini/context/, chosen by keyword match
 
 Design notes live in docs/context-engineering.md. Standard library only.
 
-Debug:    python3 .claude/hooks/context_router.py --explain "your prompt here"
+Debug:    python3 .gemini/hooks/context_router.py --explain "your prompt here"
 Disable:  VACUUM_RL_HOOK_DISABLE=1
 Plain-text output instead of JSON:  VACUUM_RL_HOOK_OUTPUT=plain
 """
@@ -40,14 +39,14 @@ class Match:
 
 
 def project_root() -> Path:
-    env = os.environ.get("CLAUDE_PROJECT_DIR")
+    env = os.environ.get("GEMINI_PROJECT_DIR")
     if env:
         return Path(env)
     return Path(__file__).resolve().parents[2]
 
 
 def load_routes(root: Path) -> dict:
-    path = root / ".claude" / "context" / "routes.json"
+    path = root / ".gemini" / "context" / "routes.json"
     return json.loads(path.read_text(encoding="utf-8"))
 
 
@@ -82,7 +81,7 @@ def match_routes(prompt: str, routes: list[dict]) -> list[Match]:
 
 def render_block(root: Path, route: dict, mentioned_skills: set[str] | None = None) -> str:
     """Snippet text plus a skill pointer (skipped if that skill was already pointed to)."""
-    path = root / ".claude" / "context" / route["file"]
+    path = root / ".gemini" / "context" / route["file"]
     body = path.read_text(encoding="utf-8").strip()
     skill = route.get("skill")
     if skill and (mentioned_skills is None or skill not in mentioned_skills):
@@ -148,7 +147,6 @@ def emit(context: str) -> None:
         return
     payload = {
         "hookSpecificOutput": {
-            "hookEventName": "UserPromptSubmit",
             "additionalContext": context,
         }
     }

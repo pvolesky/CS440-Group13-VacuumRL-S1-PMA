@@ -1,6 +1,6 @@
 """Vacuum-robot grid world. STUB: implement in Phase 1.
 
-Procedure and invariants: .claude/skills/environment-spec/SKILL.md
+Procedure and invariants: .gemini/skills/environment-spec/SKILL.md
 Semantics (provisional): docs/environment.md and configs/default.toml
 
 This class OWNS the transition function T and reward function R. The agent never

@@ -1,6 +1,6 @@
 # vacuum-rl
 
-A vacuum robot that learns to clean a small grid world with **tabular Q-learning**, set up as a repository for **context engineering with Claude Code** using a persistent-memory architecture.
+A vacuum robot that learns to clean a small grid world with **tabular Q-learning**, set up as a repository for **context engineering with Gemini Code** using a persistent-memory architecture.
 
 The environment (from the problem statement):
 
@@ -25,7 +25,7 @@ make test                    # pytest; contract tests for unbuilt code are skipp
 make hook-demo PROMPT="how should I set epsilon"   # preview what the hook injects
 ```
 
-Requirements: Python 3.11+, Linux (the hook script targets Linux; `python3` must be on the PATH). Open the repo in Claude Code and the hook, skills and `CLAUDE.md` load automatically.
+Requirements: Python 3.11+, Linux (the hook script targets Linux; `python3` must be on the PATH). Open the repo in Gemini Code and the hook, skills and `GEMINI.md` load automatically.
 
 ## How the context system works
 
@@ -33,17 +33,17 @@ Three mechanisms, plus a memory directory, each with a different cost profile:
 
 | Mechanism | Location | When it loads | Holds |
 |---|---|---|---|
-| **CLAUDE.md** | `CLAUDE.md` | Every session | Hard rules, commands, pointers (under 60 lines) |
-| **UserPromptSubmit hook** | `.claude/settings.json`, `.claude/hooks/context_router.py`, `.claude/context/` | Every prompt, relevance-gated, at most 1,500 characters | One-line project status plus up to 3 short snippets matched to the prompt by keyword |
-| **Skills** | `.claude/skills/<name>/SKILL.md` | When the task matches the skill's description | Longer procedures, checklists, reference material |
+| **GEMINI.md** | `GEMINI.md` | Every session | Hard rules, commands, pointers (under 60 lines) |
+| **UserPromptSubmit hook** | `.gemini/settings.json`, `.gemini/hooks/context_router.py`, `.gemini/context/` | Every prompt, relevance-gated, at most 1,500 characters | One-line project status plus up to 3 short snippets matched to the prompt by keyword |
+| **Skills** | `.gemini/skills/<name>/SKILL.md` | When the task matches the skill's description | Longer procedures, checklists, reference material |
 | **Memory** | `memory/` | When read (the status line is injected by the hook) | Decisions, open questions, lessons, pending proposals |
 
 Flow for a prompt like "why is my epsilon schedule not converging?":
 
-1. `CLAUDE.md` is already in context (hard rules, including the model-free boundary).
+1. `GEMINI.md` is already in context (hard rules, including the model-free boundary).
 2. The hook matches `epsilon` and `converging`, and injects the status line plus the exploration and debugging snippets. Each names its skill.
-3. Claude loads `q-learning-implementation` or `rl-debugging` for the full procedure, and reads `configs/default.toml` for actual values.
-4. If something durable is learned, Claude drafts a proposal in `memory/proposals/` for your approval.
+3. Gemini loads `q-learning-implementation` or `rl-debugging` for the full procedure, and reads `configs/default.toml` for actual values.
+4. If something durable is learned, Gemini drafts a proposal in `memory/proposals/` for your approval.
 
 Design rationale and limitations: `docs/context-engineering.md`.
 
@@ -51,7 +51,7 @@ Design rationale and limitations: `docs/context-engineering.md`.
 
 ```
 vacuum-rl/
-├── CLAUDE.md                     Always-on rules and pointers (kept under 60 lines)
+├── GEMINI.md                     Always-on rules and pointers (kept under 60 lines)
 ├── README.md                     This file
 ├── Makefile                      test / validate / hook-demo
 ├── pyproject.toml                Python 3.11+, numpy; dev: pytest
@@ -67,7 +67,7 @@ vacuum-rl/
 │   ├── open-questions.md         Unresolved questions with provisional defaults (Q-001 ...)
 │   ├── lessons-learned.md        Hard-won findings
 │   └── proposals/                Pending memory updates awaiting your approval
-├── .claude/
+├── .gemini/
 │   ├── settings.json             Registers the UserPromptSubmit hook
 │   ├── hooks/
 │   │   └── context_router.py     Keyword router; stdlib only; fails open
@@ -108,18 +108,18 @@ You asked for general choices that can be refined later. Until you say otherwise
 - Deterministic transitions, blocked moves leave the robot in place, step cost -0.04, gamma 0.99.
 - Four movement actions; state is `(row, col)`; episodes truncate at 100 steps.
 
-## Working with Claude in this repo
+## Working with Gemini in this repo
 
 - Ask for what you want in plain language; the hook and skills supply the project context.
-- Claude will not implement Q-learning until you ask (see `CLAUDE.md`).
-- When something should persist, Claude writes a proposal in `memory/proposals/` and waits for your approval. You can also edit `memory/` files yourself at any time.
-- To add a snippet, route or skill, follow `.claude/skills/context-maintenance/SKILL.md`, then run `make validate`.
+- Gemini will not implement Q-learning until you ask (see `GEMINI.md`).
+- When something should persist, Gemini writes a proposal in `memory/proposals/` and waits for your approval. You can also edit `memory/` files yourself at any time.
+- To add a snippet, route or skill, follow `.gemini/skills/context-maintenance/SKILL.md`, then run `make validate`.
 
 ## Troubleshooting the hook
 
 | Symptom | Try |
 |---|---|
-| Nothing seems injected | `/hooks` in Claude Code to confirm registration; `echo '{"prompt":"epsilon"}' \| python3 .claude/hooks/context_router.py` |
+| Nothing seems injected | `/hooks` in Gemini Code to confirm registration; `echo '{"prompt":"epsilon"}' \| python3 .gemini/hooks/context_router.py` |
 | Wrong snippets chosen | `make hook-demo PROMPT="..."` shows scores and hits; adjust `routes.json` keywords |
 | Context still not surfaced in your client version | `VACUUM_RL_HOOK_OUTPUT=plain` switches to plain-text output |
 | Want it off temporarily | `VACUUM_RL_HOOK_DISABLE=1` |

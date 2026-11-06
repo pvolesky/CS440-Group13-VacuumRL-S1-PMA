@@ -12,6 +12,17 @@
           }
         ]
       }
+    ],
+    "BeforeAgent": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$GEMINI_PROJECT_DIR/.gemini/hooks/context_router.py\"",
+            "timeout": 5000
+          }
+        ]
+      }
     ]
   }
 }

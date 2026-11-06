@@ -1,6 +1,6 @@
 """Tabular Q-learning agent. STUB: implement only when the user asks.
 
-Procedure: .claude/skills/q-learning-implementation/SKILL.md
+Procedure: .gemini/skills/q-learning-implementation/SKILL.md
 
 MODEL-FREE BOUNDARY: this module must not import vacuum_rl.env or touch T/R.
 It receives only (state_index, action, reward, next_state_index, terminated).

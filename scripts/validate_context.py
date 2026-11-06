@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Validate the context-engineering scaffolding. Standard library only.
 
-Checks: CLAUDE.md size, status line, hook registration, routes and snippets,
+Checks: GEMINI.md size, status line, hook registration, routes and snippets,
 skill frontmatter and references, memory files and ID uniqueness.
 Exit status 1 if any check fails. Run via `make validate`.
 """
@@ -12,8 +12,8 @@ import re
 import sys
 from pathlib import Path
 
-CLAUDE_MD_MAX_LINES = 60
-CLAUDE_MD_MAX_CHARS = 4000
+GEMINI_MD_MAX_LINES = 60
+GEMINI_MD_MAX_CHARS = 4000
 SNIPPET_MAX_CHARS = 450
 STATUS_MAX_CHARS = 200
 SKILL_BODY_MAX_LINES = 500
@@ -47,17 +47,17 @@ def parse_frontmatter(text: str) -> tuple[dict[str, str] | None, str]:
     return None, text
 
 
-def check_claude_md(root: Path) -> list[str]:
-    path = root / "CLAUDE.md"
+def check_gemini_md(root: Path) -> list[str]:
+    path = root / "GEMINI.md"
     if not path.exists():
-        return ["CLAUDE.md is missing"]
+        return ["GEMINI.md is missing"]
     text = path.read_text(encoding="utf-8")
     errors = []
     n_lines = len(text.splitlines())
-    if n_lines > CLAUDE_MD_MAX_LINES:
-        errors.append(f"CLAUDE.md has {n_lines} lines (max {CLAUDE_MD_MAX_LINES}); move detail to skills or docs")
-    if len(text) > CLAUDE_MD_MAX_CHARS:
-        errors.append(f"CLAUDE.md has {len(text)} chars (max {CLAUDE_MD_MAX_CHARS})")
+    if n_lines > GEMINI_MD_MAX_LINES:
+        errors.append(f"GEMINI.md has {n_lines} lines (max {GEMINI_MD_MAX_LINES}); move detail to skills or docs")
+    if len(text) > GEMINI_MD_MAX_CHARS:
+        errors.append(f"GEMINI.md has {len(text)} chars (max {GEMINI_MD_MAX_CHARS})")
     return errors
 
 
@@ -78,14 +78,14 @@ def check_status(root: Path) -> list[str]:
 
 
 def skill_names(root: Path) -> set[str]:
-    base = root / ".claude" / "skills"
+    base = root / ".gemini" / "skills"
     return {p.name for p in base.iterdir() if p.is_dir()} if base.exists() else set()
 
 
 def check_routes(root: Path) -> list[str]:
-    path = root / ".claude" / "context" / "routes.json"
+    path = root / ".gemini" / "context" / "routes.json"
     if not path.exists():
-        return [".claude/context/routes.json is missing"]
+        return [".gemini/context/routes.json is missing"]
     try:
         cfg = json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
@@ -102,7 +102,7 @@ def check_routes(root: Path) -> list[str]:
         if rid in seen:
             errors.append(f"route id '{rid}' is duplicated")
         seen.add(rid)
-        snippet = root / ".claude" / "context" / str(route.get("file", ""))
+        snippet = root / ".gemini" / "context" / str(route.get("file", ""))
         if not snippet.is_file():
             errors.append(f"route '{rid}': snippet file '{route.get('file')}' not found")
         else:
@@ -114,14 +114,14 @@ def check_routes(root: Path) -> list[str]:
             errors.append(f"route '{rid}': keywords must be a non-empty list of non-empty strings")
         skill = route.get("skill")
         if skill is not None and skill not in skills:
-            errors.append(f"route '{rid}': skill '{skill}' does not exist in .claude/skills/")
+            errors.append(f"route '{rid}': skill '{skill}' does not exist in .gemini/skills/")
     return errors
 
 
 def check_skills(root: Path) -> list[str]:
-    base = root / ".claude" / "skills"
+    base = root / ".gemini" / "skills"
     if not base.exists():
-        return [".claude/skills/ is missing"]
+        return [".gemini/skills/ is missing"]
     errors: list[str] = []
     for skill_dir in sorted(p for p in base.iterdir() if p.is_dir()):
         md = skill_dir / "SKILL.md"
@@ -156,19 +156,19 @@ def check_skills(root: Path) -> list[str]:
 
 
 def check_settings(root: Path) -> list[str]:
-    path = root / ".claude" / "settings.json"
+    path = root / ".gemini" / "settings.json"
     if not path.exists():
-        return [".claude/settings.json is missing"]
+        return [".gemini/settings.json is missing"]
     try:
         cfg = json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
-        return [f".claude/settings.json is not valid JSON: {exc}"]
+        return [f".gemini/settings.json is not valid JSON: {exc}"]
     entries = cfg.get("hooks", {}).get("UserPromptSubmit", [])
     commands = [h.get("command", "") for e in entries for h in e.get("hooks", [])]
     if not any("context_router.py" in c for c in commands):
         return ["settings.json does not register context_router.py under hooks.UserPromptSubmit"]
-    if not (root / ".claude" / "hooks" / "context_router.py").is_file():
-        return [".claude/hooks/context_router.py is missing"]
+    if not (root / ".gemini" / "hooks" / "context_router.py").is_file():
+        return [".gemini/hooks/context_router.py is missing"]
     return []
 
 
@@ -191,7 +191,7 @@ def check_memory(root: Path) -> list[str]:
 
 def validate(root: Path) -> list[str]:
     errors: list[str] = []
-    for check in (check_claude_md, check_status, check_settings, check_routes, check_skills, check_memory):
+    for check in (check_gemini_md, check_status, check_settings, check_routes, check_skills, check_memory):
         errors.extend(check(root))
     return errors
 
