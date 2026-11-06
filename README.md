@@ -124,6 +124,10 @@ You asked for general choices that can be refined later. Until you say otherwise
 | Context still not surfaced in your client version | `VACUUM_RL_HOOK_OUTPUT=plain` switches to plain-text output |
 | Want it off temporarily | `VACUUM_RL_HOOK_DISABLE=1` |
 
+## Gemini test hook
+
+`.gemini/settings.json` registers an `AfterAgent` hook that runs `.gemini/hooks/run_tests_after_agent.py` after code-focused tasks. It runs `pytest -q`. If tests fail, Gemini receives the failure details and gets one chance to fix them; if they still fail, the hook reports that result.
+
 ## References
 
 Russell, S. and Norvig, P. *Artificial Intelligence: A Modern Approach*, 4th ed. Ch. 2 (agents and task environments), Ch. 17 (MDPs, value iteration), Ch. 22 (reinforcement learning).
